@@ -1,0 +1,87 @@
+
+<style>
+	.scanner{
+		width: 100vw;
+		height: 20vh;
+	}
+#preview{
+   width:500px;
+   height: 500px;
+   margin:0px auto;
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%,-50%);
+   border: 20px blue double;
+   object-fit: cover;
+}
+</style>
+<div class="scanner">
+	<video id="preview"></video>
+</div>
+
+
+<script
+  src="libs/js/jquery-3.4.1.slim.min.js"
+  integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+  crossorigin="anonymous"></script>
+  <script src="libs/js/jquery.min1.js"></script>
+<script src="libs/js/instascan.min.js"></script>
+<script type="text/javascript">
+	var scanner = new Instascan.Scanner({ video: document.getElementById('preview'), scanPeriod: 5, mirror: false });
+	scanner.addListener('scan',function(content){
+		console.log(content);
+		$.ajax({
+
+			url:"../query/addQuestionExe.php",
+        method: "POST",
+        data: {
+            data : content
+        },
+        beforeSend : function () {
+            console.log("done");
+        },
+        dataType:"text",
+        success: function (data) {
+        alert("successful");
+        },
+        // dataType: "json",
+        dataType:"text",
+        success: function (data) {
+        $(document).ready(function (){setTimeout( function () { location.reload(true);}, 5000); }); 
+            // window.location.reload();
+        }
+        
+    }
+    )
+	});
+	Instascan.Camera.getCameras().then(function (cameras){
+		if(cameras.length>0){
+			scanner.start(cameras[0]);
+			$('[name="options"]').on('change',function(){
+				if($(this).val()==1){
+					if(cameras[0]!=""){
+						scanner.start(cameras[0]);
+					}else{
+						alert('No Front camera found!');
+					}
+				}else if($(this).val()==2){
+					if(cameras[1]!=""){
+						scanner.start(cameras[1]);
+					}else{
+						alert('No Back camera found!');
+					}
+				}
+			});
+		}else{
+			console.error('No cameras found.');
+			alert('No cameras found.');
+		}
+	}).catch(function(e){
+		console.error(e);
+		alert(e);
+	});
+</script>
+
+
+
